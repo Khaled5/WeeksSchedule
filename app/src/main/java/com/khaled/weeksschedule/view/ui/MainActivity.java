@@ -17,12 +17,15 @@ import com.khaled.weeksschedule.R;
 
 import java.util.List;
 
+
 public class MainActivity extends AppCompatActivity {
 
     private WeekDaysViewModel weekDaysViewModel;
-    private RecyclerView mRecyclerView;
+
     private WeekDaysAdapter weekDaysAdapter;
+
     private ProgressBar mProgressBar;
+    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         weekDaysViewModel.getWeekDaysFromRepo();
 
-        getData();
+        observeLiveData();
 
     }
 
@@ -51,11 +54,19 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(weekDaysAdapter);
     }
 
-    private void getData(){
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+    }
+
+
+    private void observeLiveData() {
         weekDaysViewModel.listMutableLiveData.observe(this, new Observer<List<WeekDay>>() {
             @Override
             public void onChanged(List<WeekDay> weekDays) {
+
                 hideProgress();
+
                 weekDaysAdapter.setList(weekDays);
             }
         });

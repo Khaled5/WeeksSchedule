@@ -10,14 +10,6 @@ import android.os.Build;
 
 public class App extends Application {
 
-    private static App instance;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        instance = this;
-    }
-
     @TargetApi(Build.VERSION_CODES.M)
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager
