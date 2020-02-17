@@ -55,14 +55,6 @@ public class Repository {
     private void fetchFromAPI() {
             compositeDisposable.add(WeekDayClient.getINSTANCE().getWeekDays()
                     //-----------------
-                    //In retryWhen() will resubscribe the parent and retry the request three times (5s ,10s ,15s) if the return is not complete or error
-
-                    .retryWhen(attempt ->
-                            attempt.zipWith(Observable.range(1,3), (n,i) -> i)
-                    .flatMap(i ->
-                            Observable.timer(5 * i, TimeUnit.SECONDS))
-
-                    )
                     .doOnError(e -> {
                                 if (isNetworkAvailable(application)){
                                     fetchFromAPI();
@@ -70,12 +62,21 @@ public class Repository {
                                     fetchFromLocalDB();
                                 }
                     })
+
+                    //In retryWhen() will resubscribe the parent and retry the request three times (5s ,10s ,15s) if the return is not complete or error
+
+                    .retryWhen(attempt ->
+                            attempt.zipWith(Observable.range(1,3), (n,i) -> i)
+                                    .flatMap(i ->
+                                            Observable.timer(5 * i, TimeUnit.SECONDS))
+
+                    )
                     //------------------
                     .subscribeOn(Schedulers.io())
-                    .doOnNext(o -> {
-                        dao.deleteAll();})
-                    .doOnNext(list -> {
-                        dao.insert(list);})
+                    .doOnNext(o ->
+                        dao.deleteAll())
+                    .doOnNext(list ->
+                        dao.insert(list))
                     .observeOn(AndroidSchedulers.mainThread()).subscribe(list -> {
                         fetchFromLocalDB();
                             }
